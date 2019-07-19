@@ -7,14 +7,14 @@ const HTMLWebpackPluginConfig = new HtmlWebpackPlugin({
 })
 
 /* Configure BrowserSync */
-const BrowserSyncPlugin = require('browser-sync-webpack-plugin')
-const BrowserSyncPluginConfig = new BrowserSyncPlugin({
-    host: 'localhost',
-    port: 3000,
-    proxy: 'http://localhost:8080/'
-}, config = {
-    reload: false
-})
+// const BrowserSyncPlugin = require('browser-sync-webpack-plugin')
+// const BrowserSyncPluginConfig = new BrowserSyncPlugin({
+//     host: 'localhost',
+//     port: 3000,
+//     proxy: 'http://localhost:8080/'
+// }, config = {
+//     reload: false
+// })
 
 /* Configure ProgressBar */
 const ProgressBarPlugin = require('progress-bar-webpack-plugin')
@@ -71,5 +71,7 @@ module.exports = {
         ]
     },
     resolve: { extensions: [".web.ts", ".web.js", ".ts", ".js"] },
-    plugins: [HTMLWebpackPluginConfig, BrowserSyncPluginConfig, ProgressBarPluginConfig]
+    plugins: [HTMLWebpackPluginConfig, 
+        //BrowserSyncPluginConfig, 
+        ProgressBarPluginConfig]
 }

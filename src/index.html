@@ -1,11 +1,39 @@
-<!DOCTYPE html>
-<html>
-
 <head>
     <meta charset="utf-8">
-    <title>Typescript Webpack Starter</title>
+    <title>CodeMix Particle Examples</title>
+    <style>
+        body,
+        html {
+            width: 100%;
+            height: 100%;
+            margin: 0px;
+            overflow: hidden;
+            background-color: lightcyan;
+        }
+
+        canvas {
+            width: 100%;
+            height: 100%;
+        }
+
+        #cover {
+            position: fixed;
+            padding: 0;
+            margin: 0;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: lightcyan;
+            opacity: 1;
+        }
+    </style>
+
 </head>
 
-<body></body>
+<body>
+    <div id="cover"></div>
+    <canvas id="scene"></canvas>
+</body>
 
 </html>

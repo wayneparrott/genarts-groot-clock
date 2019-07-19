@@ -1,18 +1,18 @@
 {
-  "name": "typescript-webpack-starter",
+  "name": "treegen",
   "version": "0.0.1",
-  "description": "typescript + webpack",
+  "description": "generative art tree generator",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "webpack-dev-server --inline --open"
+    "start": "webpack-dev-server --inline "
   },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/wayneparrott/typescript-webpack-starter.git"
   },
   "keywords": [],
-  "author": "Huang Qi",
+  "author": "Wayne Parrott",
   "license": "MIT",
   "bugs": {
     "url": "https://github.com/wayneparrott/typescript-webpack-starter/issues"
@@ -34,5 +34,9 @@
     "webpack-dev-server": "latest"
   },
   "dependencies": {
+    "@types/gsap": "^1.20.2",
+    "gsap": "^2.1.3",
+    "three": "^0.106.2",
+    "three.meshline": "^1.2.0"
   }
 }
