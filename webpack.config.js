@@ -46,7 +46,7 @@ module.exports = {
                             sourceMap: true
                         }
                     },
-                    {loader: 'css-loader'}
+                    { loader: 'css-loader' }
                 ]
             }, {
                 test: /\.css$/,
@@ -67,11 +67,14 @@ module.exports = {
                         }
                     }
                 ]
+            }, {
+                test: /\.(png|jpg|jpeg|gif)$/,
+                loader: 'file-loader'
             }
         ]
     },
     resolve: { extensions: [".web.ts", ".web.js", ".ts", ".js"] },
-    plugins: [HTMLWebpackPluginConfig, 
+    plugins: [HTMLWebpackPluginConfig,
         //BrowserSyncPluginConfig, 
         ProgressBarPluginConfig]
 }

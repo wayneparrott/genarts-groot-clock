@@ -1,10 +1,9 @@
 import {
-    Color, Vector2, Texture, Vector3, Object3D, SplineCurve,
+    Color, Vector2, Texture, Vector3, SplineCurve,
     BufferGeometry, LineBasicMaterial, Line, LineLoop, CatmullRomCurve3,
-    LineDashedMaterial,
-    BufferAttribute,
-    VertexColors
-} from "./three.component";
+    LineDashedMaterial, BufferAttribute, VertexColors
+} from "three-component-ts";
+
 
 export class AnimatedVector extends Vector3 {
     public isActive = false;
@@ -110,7 +109,7 @@ export function createCircleTexture(color: string, size: number): Texture {
     return texture;
 }
 
-export function create2DLine(origin: Vector2, angle: number, length: number,
+export function createLine(origin: Vector3, angle: number, length: number,
     color: Color | [Color, Color] = randomColor(), peturbance = 0.0, segmentCount = 1,
     material?: LineBasicMaterial | LineDashedMaterial): Line {
 
@@ -146,13 +145,14 @@ export function create2DLine(origin: Vector2, angle: number, length: number,
 
     // create line and return it
     const line = new Line(geometry, mat);
+    line.position.z = origin.z;
     line.computeLineDistances();
 
     return line;
 }
 
 
-export function create2DCircle(origin: Vector2, radius: number,
+export function createCircle(origin: Vector3, radius: number,
     color: Color | [Color, Color] = randomColor(), peturbance = 0.0,
     segmentCount = 360, startAngle = 0,
     material?: LineBasicMaterial | LineDashedMaterial): Line {
@@ -166,14 +166,14 @@ export function create2DCircle(origin: Vector2, radius: number,
         const radiusPrime = radius + random(-peturbance, peturbance);
         const x = origin.x + radiusPrime * Math.cos(i * segmentRads + startAngle);
         const y = origin.y + radiusPrime * Math.sin(i * segmentRads + startAngle);
-        segmentPoints.push(new Vector3(x, y, 0));
+        segmentPoints.push(new Vector3(x, y, origin.z));
     }
 } else {
     for (let i = segmentCount-1; i >= 0; i--) {
         const radiusPrime = radius + random(-peturbance, peturbance);
         const x = origin.x + radiusPrime * Math.cos(i * segmentRads + startAngle);
         const y = origin.y + radiusPrime * Math.sin(i * segmentRads + startAngle);
-        segmentPoints.push(new Vector3(x, y, 0));
+        segmentPoints.push(new Vector3(x, y, origin.z));
     }
 }
 
