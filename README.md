@@ -1,23 +1,12 @@
-# Typescript Three.js Webpack Starter
+# Groot Clock - a computer art project
 
-- Typescript support.
-- Webpack
-- Html plugin
-- BrowserSync
+A fun analog clock constructed from a growth of branches and leaves. 
+The project is named Groot Clock after the tree-like superhero 
+[Groot](https://en.wikipedia.org/wiki/Groot). 
 
-## Usage
+The clock is implemented using the [three.js](https://threejs.org) 
+library for graphics and [Greensock](https://greensock.com/) tween 
+library for animation. 
 
-### Install Typscript
 
-```
-npm install typescript -g
-```
-
-### Start
-
-```
-$ git clone https://github.com/pinqy520/three-typescript-starter.git
-$ cd three-typescript-starter
-$ npm install # or yarn
-$ npm start
-```
+![](screenshot-animated.gif)
