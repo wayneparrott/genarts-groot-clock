@@ -109,8 +109,54 @@ export function createCircleTexture(color: string, size: number): Texture {
     return texture;
 }
 
-export function createLine(origin: Vector3, angle: number, length: number,
-    color: Color | [Color, Color] = randomColor(), peturbance = 0.0, segmentCount = 1,
+/**
+ * Creates a wavy colored three.js line. 
+ * 
+ * @remarks
+ * This method creates a wavy three.js Line. The perturbance and segmentCount 
+ * determine the wavyiness of the resulting line. 
+ * 
+ * How it works: the segmentCount specifies how many equal length segments to divide
+ * the line length into. Then each segment vertex is offset by a random value between
+ * 0 and the peturbance parameter. Then a cubic spline is fit through the segment
+ * vertices. If the color parameter is a [Color,Color] then a gradient of colors starting
+ * with the 1st element and ending with the 2nd element is evenly distributed across each 
+ * internal line segment. The resulting three.js Line is created using a geometry based
+ * on the line segments vertices and a line-material.  
+ * 
+ * @param origin - starting point of Line
+ * @param angle - angle (radians) of the line extending from the origin
+ * @param length - length of the line to create, must be > 0.0
+ * @param width? - width of the new line, default = 1 
+ * @param color? - line color, a three.js Color or [Color,Color] specifying start and end 
+ *                 gradient colors. default = random Color
+ * @param perturbance? - maximum displacement of a segment vertex from the centerline of the line,
+ *                       default = 0.0
+ * @param segmentCount? - number of internal segments to divide the line, default = 1;
+ * @param material? - line-material to use for the Line. Default = new LineBasicMaterial
+ 
+ * @returns A new three.js Line
+ *
+ * @example
+ * createLine(
+ *     new Vector(),
+ *     Math.PI/4.0,
+ *     10.5)
+ * 
+ * createLine(
+ *     new Vector10,30,-5(),
+ *     Math.PI/4.0,
+ *     50,
+ *     3,
+ *     [new Color(1,0,0),new Color(0,1,0]),
+ *     0.5,
+ *     25,
+ *     new LineDashedMaterial({
+ *          dashSize: 2,
+ *          gapSize: 2}) )
+ */
+export function createLine(origin: Vector3, angle: number, length: number, width = 1,
+    color: Color | [Color, Color] = randomColor(), perturbance = 0.0, segmentCount = 1,
     material?: LineBasicMaterial | LineDashedMaterial): Line {
 
     // generate points
@@ -122,8 +168,8 @@ export function createLine(origin: Vector3, angle: number, length: number,
     for (let i = 0; i < segmentCount + 1; i++) {
         segmentPoints.push(
             new Vector2(
-                origin.x + i * deltaX + random(-peturbance, peturbance),
-                origin.y + i * deltaY + random(-peturbance, peturbance)));
+                origin.x + i * deltaX + random(-perturbance, perturbance),
+                origin.y + i * deltaY + random(-perturbance, perturbance)));
     }
 
     const spline = new SplineCurve(segmentPoints);
@@ -136,7 +182,10 @@ export function createLine(origin: Vector3, angle: number, length: number,
         geometry.addAttribute('color', colors);
     }
 
-    const mat = material ? material : new LineBasicMaterial();
+    const mat = material ?
+        material :
+        new LineBasicMaterial( {linewidth: width} );
+
     if (!Array.isArray(color)) {
         mat.color = color;
     } else {
@@ -152,8 +201,9 @@ export function createLine(origin: Vector3, angle: number, length: number,
 }
 
 
-export function createCircle(origin: Vector3, radius: number,
-    color: Color | [Color, Color] = randomColor(), peturbance = 0.0,
+// todo: revise color gradient logic such that start & end color are the same
+export function createCircle(origin: Vector3, radius: number, lineWidth = 1,
+    color: Color | [Color, Color] = randomColor(), perturbance = 0.0,
     segmentCount = 360, startAngle = 0,
     material?: LineBasicMaterial | LineDashedMaterial): Line {
 
@@ -162,20 +212,20 @@ export function createCircle(origin: Vector3, radius: number,
     const segmentPoints = new Array<Vector3>();
 
     if (flipCoin()) {
-    for (let i = 0; i < segmentCount; i++) {
-        const radiusPrime = radius + random(-peturbance, peturbance);
-        const x = origin.x + radiusPrime * Math.cos(i * segmentRads + startAngle);
-        const y = origin.y + radiusPrime * Math.sin(i * segmentRads + startAngle);
-        segmentPoints.push(new Vector3(x, y, origin.z));
+        for (let i = 0; i < segmentCount; i++) {
+            const radiusPrime = radius + random(-perturbance, perturbance);
+            const x = origin.x + radiusPrime * Math.cos(i * segmentRads + startAngle);
+            const y = origin.y + radiusPrime * Math.sin(i * segmentRads + startAngle);
+            segmentPoints.push(new Vector3(x, y, origin.z));
+        }
+    } else {
+        for (let i = segmentCount - 1; i >= 0; i--) {
+            const radiusPrime = radius + random(-perturbance, perturbance);
+            const x = origin.x + radiusPrime * Math.cos(i * segmentRads + startAngle);
+            const y = origin.y + radiusPrime * Math.sin(i * segmentRads + startAngle);
+            segmentPoints.push(new Vector3(x, y, origin.z));
+        }
     }
-} else {
-    for (let i = segmentCount-1; i >= 0; i--) {
-        const radiusPrime = radius + random(-peturbance, peturbance);
-        const x = origin.x + radiusPrime * Math.cos(i * segmentRads + startAngle);
-        const y = origin.y + radiusPrime * Math.sin(i * segmentRads + startAngle);
-        segmentPoints.push(new Vector3(x, y, origin.z));
-    }
-}
 
     const curveType = "chordal"; // chordal, centripetal, catmullrom
     const stemCurve = new CatmullRomCurve3(segmentPoints, true);
@@ -188,7 +238,8 @@ export function createCircle(origin: Vector3, radius: number,
         geometry.addAttribute('color', colors);
     }
 
-    const mat = material ? material : new LineBasicMaterial();
+    const mat = material ? material : new LineBasicMaterial({linewidth: lineWidth});
+
     if (!Array.isArray(color)) {
         mat.color = color;
     } else {

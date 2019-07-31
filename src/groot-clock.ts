@@ -20,6 +20,7 @@ const HOUR_HAND_LINES = 20;
 const MIN_HAND_LINES = 15;
 const SEC_HAND_LINES = 2;
 const CENTER_PT_LINES = 12;
+const LINE_WIDTH = 1;
 
 const INCLUDE_LEAFS = true;
 const LEAFS = 1250;
@@ -49,6 +50,8 @@ export class GrootClock extends ThreeComponent {
     private minuteHand = new Object3D();
     private secondHand = new Object3D();
 
+    private timeline = new TimelineMax();
+
     private loader = new TextureLoader();
     private leafMaterial = new SpriteMaterial(
         {
@@ -76,9 +79,7 @@ export class GrootClock extends ThreeComponent {
 
     protected populateScene(): void {
 
-        this.camera.position.setZ(30);
-
-        const timeline = new TimelineMax();
+        this.camera.position.setZ(30);        
 
         const material = new LineDashedMaterial({
             vertexColors: VertexColors,
@@ -92,6 +93,7 @@ export class GrootClock extends ThreeComponent {
             const circle = createCircle(
                 new Vector3(),
                 random(FACE_RADIUS, FACE_RADIUS + 0.75),
+                LINE_WIDTH,
                 [randomColor(), randomColor()],
                 random(0, 1.5),
                 25, random(0, TWO_PI),
@@ -101,7 +103,7 @@ export class GrootClock extends ThreeComponent {
             );
             circle.position.z = random(0, 5);
             this.face.add(circle);
-            timeline.to(circle.material, random(2, 6), { dashSize: CIRCUMFERENCE }, random(3, 15));
+            this.timeline.to(circle.material, random(2, 6), { dashSize: CIRCUMFERENCE }, random(3, 15));
         }
         this.scene.add(this.face);
 
@@ -111,13 +113,14 @@ export class GrootClock extends ThreeComponent {
                 new Vector3(),
                 Math.PI / 2,
                 random(HOUR_HAND_LEN - 1, HOUR_HAND_LEN),
+                LINE_WIDTH,
                 [randomColor(), randomColor()],
                 random(0, 0.7),
                 10,
                 material.clone()
             );
             this.hourHand.add(line);
-            timeline.to(line.material, 6, { dashSize: HOUR_HAND_LEN }, random(3, 15));
+            this.timeline.to(line.material, 6, { dashSize: HOUR_HAND_LEN }, random(3, 15));
         }
         this.scene.add(this.hourHand);
 
@@ -127,12 +130,13 @@ export class GrootClock extends ThreeComponent {
                 new Vector3(),
                 Math.PI / 2,
                 random(MINUTE_HAND_LEN - 1, MINUTE_HAND_LEN),
+                LINE_WIDTH,
                 [randomColor(), randomColor()],
                 random(0, 0.5),
                 10,
                 material.clone());
             this.minuteHand.add(line);
-            timeline.to(line.material, 6, { dashSize: MINUTE_HAND_LEN }, random(3, 15));
+            this.timeline.to(line.material, 6, { dashSize: MINUTE_HAND_LEN }, random(3, 15));
         }
         this.scene.add(this.minuteHand);
 
@@ -143,12 +147,13 @@ export class GrootClock extends ThreeComponent {
                 new Vector3(0, 0, 0),
                 Math.PI / 2,
                 SECOND_HAND_LEN,
+                LINE_WIDTH,
                 [randomColor(), randomColor()],
                 random(0, 0.45),
                 10,
                 material.clone());
             this.secondHand.add(line);
-            timeline.to(line.material, 6, { dashSize: SECOND_HAND_LEN }, random(3, 15));
+            this.timeline.to(line.material, 6, { dashSize: SECOND_HAND_LEN }, random(3, 15));
         }
         this.scene.add(this.secondHand);
 
@@ -158,6 +163,7 @@ export class GrootClock extends ThreeComponent {
             const circle = createCircle(
                 new Vector3(),
                 CENTER_PT_LEN,
+                LINE_WIDTH,
                 [new Color('yellow'), new Color('darkgreen')],
                 random(0, 1.0),
                 25);
@@ -186,7 +192,7 @@ export class GrootClock extends ThreeComponent {
                 leaf.material.opacity = 0;
 
                 this.face.add(leaf);
-                timeline.to(
+                this.timeline.to(
                     leaf.material,
                     random(2, 6),
                     { opacity: random(0.1, 0.9) },
@@ -207,7 +213,7 @@ export class GrootClock extends ThreeComponent {
                 leaf.material.opacity = 0;
 
                 this.secondHand.add(leaf);
-                timeline.to(
+                this.timeline.to(
                     leaf.material,
                     random(2, 5),
                     { opacity: random(0.2, 0.9) },
@@ -226,7 +232,7 @@ export class GrootClock extends ThreeComponent {
                 leaf.material.opacity = 0;
 
                 this.minuteHand.add(leaf);
-                timeline.to(
+                this.timeline.to(
                     leaf.material,
                     random(2, 5),
                     { opacity: random(0.2, 0.9) },
@@ -245,27 +251,28 @@ export class GrootClock extends ThreeComponent {
                 leaf.material.opacity = 0;
 
                 this.hourHand.add(leaf);
-                timeline.to(
+                this.timeline.to(
                     leaf.material,
                     random(2, 5),
                     { opacity: random(0.2, 0.9) },
                     random(12,20));
             }
         }
-
-        // start animation
-        timeline.play();
     }
 
     start() {
+        
         // controls
         const controls = new OrbitControls(this.camera, this.renderer.domElement);
         controls.minDistance = 10;
         controls.maxDistance = 100;
 
-        this.updateHandPositions();
         this.startRenderer();
         TweenMax.to('#cover', 1.5, { opacity: 0, ease: Expo.easeIn });
+         // start animation
+        this.updateHandPositions();
+         this.timeline.play();
+
     }
 
 
