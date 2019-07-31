@@ -8,5 +8,7 @@ library for graphics, the [Greensock](https://greensock.com/) tween
 library for animation and the [CodeMix](https://www.genuitec.com/products/codemix/) 
 plugin for Eclipse. 
 
+Learn more about this project on [blog](http://www.wayneparrott.com/groot-clock-animating-simulated-hand-drawn-gradient-colored-three-js-lines-part-1/).
+
 
 ![](screenshot-animated.gif)
