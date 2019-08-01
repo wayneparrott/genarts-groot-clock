@@ -1,9 +1,9 @@
 import {
     ThreeComponent, Object3D, Vector3,
     LineDashedMaterial, VertexColors, OrbitControls,
-    TextureLoader, SpriteMaterial, Sprite, Color, REVISION 
+    TextureLoader, SpriteMaterial, Sprite, Color, REVISION
 } from "three-component-ts";
-import { random, randomColor, createCircle, createLine } from "./util"; 
+import { random, randomColor, createCircle2D, createLine2D } from "./util";
 import { TweenMax } from "gsap/TweenMax";
 import { Expo, TimelineMax } from "gsap";
 
@@ -21,6 +21,7 @@ const MIN_HAND_LINES = 15;
 const SEC_HAND_LINES = 2;
 const CENTER_PT_LINES = 12;
 const LINE_WIDTH = 1;
+const INSET = 1.5;
 
 const INCLUDE_LEAFS = true;
 const LEAFS = 1250;
@@ -79,7 +80,7 @@ export class GrootClock extends ThreeComponent {
 
     protected populateScene(): void {
 
-        this.camera.position.setZ(30);        
+        this.camera.position.setZ(30);
 
         const material = new LineDashedMaterial({
             vertexColors: VertexColors,
@@ -90,18 +91,21 @@ export class GrootClock extends ThreeComponent {
 
         // draw clock face
         for (let i = 0; i < CIRCLE_LINES; i++) {
-            const circle = createCircle(
+            const circle = createCircle2D(
                 new Vector3(),
                 random(FACE_RADIUS, FACE_RADIUS + 0.75),
-                LINE_WIDTH,
-                [randomColor(), randomColor()],
-                random(0, 1.5),
-                25, random(0, TWO_PI),
-
-                //i % CIRCLE_LINES == 0 ? null : 
-                material.clone()
+                {
+                    width: LINE_WIDTH,
+                    color: [randomColor(), randomColor()],
+                    perturbance: random(0, 1.5),
+                    segmentCount: 25,
+                    startAngle: random(0, TWO_PI),
+                    material: material.clone()
+                }
             );
-            circle.position.z = random(0, 5);
+            //circle.position.z = random(0, 5);
+            circle.rotateX(random(-0.2,0.2));
+            circle.rotateY(random(-0.2,0.2));
             this.face.add(circle);
             this.timeline.to(circle.material, random(2, 6), { dashSize: CIRCUMFERENCE }, random(3, 15));
         }
@@ -109,66 +113,78 @@ export class GrootClock extends ThreeComponent {
 
         // draw hour hand
         for (let i = 0; i < HOUR_HAND_LINES; i++) {
-            const line = createLine(
+            const line = createLine2D(
                 new Vector3(),
-                Math.PI / 2,
                 random(HOUR_HAND_LEN - 1, HOUR_HAND_LEN),
-                LINE_WIDTH,
-                [randomColor(), randomColor()],
-                random(0, 0.7),
-                10,
-                material.clone()
+                Math.PI / 2,
+                {
+                    width: LINE_WIDTH,
+                    color: [randomColor(), randomColor()],
+                    perturbance: random(0, 0.7),
+                    segmentCount: 10,
+                    material: material.clone()
+                }
             );
             this.hourHand.add(line);
             this.timeline.to(line.material, 6, { dashSize: HOUR_HAND_LEN }, random(3, 15));
         }
+        this.hourHand.position.z = -INSET;
         this.scene.add(this.hourHand);
 
         // draw minute hand
         for (let i = 0; i < MIN_HAND_LINES; i++) {
-            const line = createLine(
+            const line = createLine2D(
                 new Vector3(),
-                Math.PI / 2,
                 random(MINUTE_HAND_LEN - 1, MINUTE_HAND_LEN),
-                LINE_WIDTH,
-                [randomColor(), randomColor()],
-                random(0, 0.5),
-                10,
-                material.clone());
+                Math.PI / 2,
+                {
+                    width: LINE_WIDTH,
+                    color: [randomColor(), randomColor()],
+                    perturbance: random(0, 0.5),
+                    segmentCount: 10,
+                    material: material.clone()
+                });
             this.minuteHand.add(line);
             this.timeline.to(line.material, 6, { dashSize: MINUTE_HAND_LEN }, random(3, 15));
         }
+        this.minuteHand.position.z = -INSET;
         this.scene.add(this.minuteHand);
 
 
         // draw secondHand
         for (let i = 0; i < SEC_HAND_LINES; i++) {
-            const line = createLine(
+            const line = createLine2D(
                 new Vector3(0, 0, 0),
-                Math.PI / 2,
                 SECOND_HAND_LEN,
-                LINE_WIDTH,
-                [randomColor(), randomColor()],
-                random(0, 0.45),
-                10,
-                material.clone());
+                Math.PI / 2,
+                {
+                    width: LINE_WIDTH,
+                    color: [randomColor(), randomColor()],
+                    perturbance: random(0, 0.45),
+                    segmentCount: 10,
+                    material: material.clone()
+                });
             this.secondHand.add(line);
             this.timeline.to(line.material, 6, { dashSize: SECOND_HAND_LEN }, random(3, 15));
         }
+        this.secondHand.position.z = -INSET;
         this.scene.add(this.secondHand);
 
         // add center pt
         const centerPt = new Object3D();
         for (let i = 0; i < CENTER_PT_LINES; i++) {
-            const circle = createCircle(
+            const circle = createCircle2D(
                 new Vector3(),
                 CENTER_PT_LEN,
-                LINE_WIDTH,
-                [new Color('yellow'), new Color('darkgreen')],
-                random(0, 1.0),
-                25);
+                {
+                    width: LINE_WIDTH,
+                    color: [new Color('yellow'), new Color('darkgreen')],
+                    perturbance: random(0, 1.0),
+                    segmentCount: 25
+                });
             centerPt.add(circle);
         }
+        centerPt.position.z = -INSET;
         this.scene.add(centerPt);
 
 
@@ -181,14 +197,14 @@ export class GrootClock extends ThreeComponent {
                     (radius < FACE_RADIUS ? angle + Math.PI : angle) +
                     random(-Math.PI / 3, Math.PI / 3);
                 const leaf = this.createLeaf(
-                        radius * Math.cos(angle),
-                        radius * Math.sin(angle),
-                        //randomColor());
-                        new Color(1.0, 0.6 + random(0, 0.4), 0));
+                    radius * Math.cos(angle),
+                    radius * Math.sin(angle),
+                    //randomColor());
+                    new Color(1.0, 0.6 + random(0, 0.4), 0));
                 const scale = random(0.5, 1.0);
                 leaf.scale.set(scale, scale, 1);
                 leaf.material.rotation = rotation;
-                leaf.position.z = random(0, 5);
+                leaf.position.z = random(-2.5,2.5);
                 leaf.material.opacity = 0;
 
                 this.face.add(leaf);
@@ -209,7 +225,7 @@ export class GrootClock extends ThreeComponent {
                 leaf.scale.set(scale, scale, 1);
                 leaf.material.rotation =
                     Math.PI + (x < 0 ? random(0, 0.5) : random(-0.5, 0));
-                leaf.position.z = random(0, 5);
+                //leaf.position.z = -INSET;
                 leaf.material.opacity = 0;
 
                 this.secondHand.add(leaf);
@@ -217,7 +233,7 @@ export class GrootClock extends ThreeComponent {
                     leaf.material,
                     random(2, 5),
                     { opacity: random(0.2, 0.9) },
-                    random(12,20));
+                    random(12, 20));
             }
 
             //minute hand leafs
@@ -228,7 +244,7 @@ export class GrootClock extends ThreeComponent {
                 const scale = random(0.5, 0.75);
                 leaf.scale.set(scale, scale, 1);
                 leaf.material.rotation = random(0, TWO_PI);
-                leaf.position.z = random(0, 5);
+                //leaf.position.z = -INSET; //random(0, 5);
                 leaf.material.opacity = 0;
 
                 this.minuteHand.add(leaf);
@@ -247,7 +263,7 @@ export class GrootClock extends ThreeComponent {
                 const scale = random(0.5, 0.75);
                 leaf.scale.set(scale, scale, 1);
                 leaf.material.rotation = random(0, TWO_PI);
-                leaf.position.z = random(0, 5);
+                //leaf.position.z = -INSET; //random(0, 5);
                 leaf.material.opacity = 0;
 
                 this.hourHand.add(leaf);
@@ -255,13 +271,13 @@ export class GrootClock extends ThreeComponent {
                     leaf.material,
                     random(2, 5),
                     { opacity: random(0.2, 0.9) },
-                    random(12,20));
+                    random(12, 20));
             }
         }
     }
 
     start() {
-        
+
         // controls
         const controls = new OrbitControls(this.camera, this.renderer.domElement);
         controls.minDistance = 10;
@@ -269,12 +285,24 @@ export class GrootClock extends ThreeComponent {
 
         this.startRenderer();
         TweenMax.to('#cover', 1.5, { opacity: 0, ease: Expo.easeIn });
-         // start animation
+        // start animation
         this.updateHandPositions();
-         this.timeline.play();
+        this.timeline.play();
 
     }
 
+    protected createOrbitControls() {
+        super.createOrbitControls();
+        // this.controls = new OrbitControls(this.camera, this.renderer.domElement);
+        // this.controls.enableDamping = true; // an animation loop is required when either damping or auto-rotation are enabled
+        // this.controls.dampingFactor = 0.25;
+        // this.controls.screenSpacePanning = false;
+        this.controls.minDistance = 10;
+        this.controls.maxDistance = 1500;
+        // this.controls.maxPolarAngle = Math.PI / 2;
+
+        //this.controls.update();
+    }
 
     animate() {
         super.animate();
@@ -283,6 +311,8 @@ export class GrootClock extends ThreeComponent {
             this.updateHandPositions();
             this.tic = false;
         }
+
+        this.controls.update();
     }
 
     updateHandPositions() {

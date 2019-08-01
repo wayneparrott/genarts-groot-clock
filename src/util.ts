@@ -1,7 +1,7 @@
 import {
     Color, Vector2, Texture, Vector3, SplineCurve,
     BufferGeometry, LineBasicMaterial, Line, LineLoop, CatmullRomCurve3,
-    LineDashedMaterial, BufferAttribute, VertexColors
+    LineDashedMaterial, BufferAttribute, VertexColors, Spherical
 } from "three-component-ts";
 
 
@@ -109,6 +109,28 @@ export function createCircleTexture(color: string, size: number): Texture {
     return texture;
 }
 
+/** 
+ *  LineStyle properties
+ */
+export type LineStyle = {
+
+    /** width of the new line, default = 1 */
+    width: number,
+
+    /** line color, a three.js Color or [Color,Color] specifying start and end 
+       gradient colors. default = random Color */
+    color: Color | [Color, Color],
+
+    /** maximum displacement of a segment vertex from the centerline of the line, default = 0.0 */
+    perturbance: number,
+
+    /** number of internal segments to divide the line, default = 1 */
+    segmentCount: number,
+
+    /** line-material to use for the Line. Default = new LineBasicMaterial */
+    material?: LineBasicMaterial | LineDashedMaterial
+}
+
 /**
  * Creates a wavy colored three.js line. 
  * 
@@ -125,28 +147,74 @@ export function createCircleTexture(color: string, size: number): Texture {
  * on the line segments vertices and a line-material.  
  * 
  * @param origin - starting point of Line
- * @param angle - angle (radians) of the line extending from the origin
  * @param length - length of the line to create, must be > 0.0
- * @param width? - width of the new line, default = 1 
- * @param color? - line color, a three.js Color or [Color,Color] specifying start and end 
- *                 gradient colors. default = random Color
- * @param perturbance? - maximum displacement of a segment vertex from the centerline of the line,
- *                       default = 0.0
- * @param segmentCount? - number of internal segments to divide the line, default = 1;
- * @param material? - line-material to use for the Line. Default = new LineBasicMaterial
- 
+ * @param theta - angle (radians) of line in x-y plane extending from the origin, 
+ *                measured counter-clockwise from the x-positive axis
+ * @param lineStyle - {width, color, segmentCount, material}
+ *
+ * @returns A new three.js Line
+ *
+ * @example
+ * createLine2D(
+ *     new Vector(),
+ *     10.5,
+ *     Math.PI/4.0)
+ * 
+ * createLine2D(
+ *     new Vector(10,30,-5),
+ *     50,
+ *     Math.PI/4.0,
+ *     { 
+ *      width: 3,
+ *      color: [new Color(1,0,0),new Color(0,1,0]),
+ *      perturnabce: 0.5,
+ *      segmentCount: 25,
+ *      material: new LineDashedMaterial({
+ *          dashSize: 2,
+ *          gapSize: 2}) 
+ *     })
+ */
+export function createLine2D(origin: Vector3, length: number, theta: number,
+    lineStyle?: Partial<LineStyle>): Line {
+
+    const line = createLine3D(
+        origin,
+        new Spherical(length, Math.PI / 2.0 - theta, Math.PI / 2),
+        lineStyle);
+
+    return line;
+}
+
+/**
+ * Creates a wavy colored three.js line. 
+ * 
+ * @remarks
+ * This method creates a wavy three.js Line. The perturbance and segmentCount 
+ * determine the wavyiness of the resulting line. 
+ * 
+ * How it works: the segmentCount specifies how many equal length segments to divide
+ * the line length into. Then each segment vertex is offset by a random value between
+ * 0 and the peturbance parameter. Then a cubic spline is fit through the segment
+ * vertices. If the color parameter is a [Color,Color] then a gradient of colors starting
+ * with the 1st element and ending with the 2nd element is evenly distributed across each 
+ * internal line segment. The resulting three.js Line is created using a geometry based
+ * on the line segments vertices and a line-material.  
+ * 
+ * @param origin - starting point of Line
+ * @param sphericalCoords - phi = angle  measured from y-positive axis,
+ *                          theta = agnle in x-z plane, measured counter-clockwise from z-positive axis 
+ * @param lineStyle - {width, color, segmentCount, material}
+ *
  * @returns A new three.js Line
  *
  * @example
  * createLine(
  *     new Vector(),
- *     Math.PI/4.0,
- *     10.5)
+ *     new Spherical(10, Math.PI/4.0, Math.PI/4.0))
  * 
  * createLine(
  *     new Vector10,30,-5(),
- *     Math.PI/4.0,
- *     50,
+ *     new Spherical(50, Math.PI/3.0, Math.PI/2.0),
  *     3,
  *     [new Color(1,0,0),new Color(0,1,0]),
  *     0.5,
@@ -155,39 +223,53 @@ export function createCircleTexture(color: string, size: number): Texture {
  *          dashSize: 2,
  *          gapSize: 2}) )
  */
-export function createLine(origin: Vector3, angle: number, length: number, width = 1,
-    color: Color | [Color, Color] = randomColor(), perturbance = 0.0, segmentCount = 1,
-    material?: LineBasicMaterial | LineDashedMaterial): Line {
+export function createLine3D(origin: Vector3, sphereCoords: Spherical,
+    lineStyle: Partial<LineStyle> = {}): Line {
+
+    const styles = Object.assign({
+        width: 1.0,
+        color: randomColor(),
+        perturbance: 0.0,
+        segmentCount: 1
+    }, lineStyle);
 
     // generate points
-    const segmentLength = length / segmentCount;
-    const segmentPoints = new Array<Vector2>();
-    const deltaX = segmentLength * Math.cos(angle);
-    const deltaY = segmentLength * Math.sin(angle);
+    const radius = sphereCoords.radius;
+    const segmentLength = radius / styles.segmentCount;
+    const segmentPoints = new Array<Vector3>();
+    sphereCoords.radius = 1.0;
+    const delta = new Vector3().setFromSpherical(sphereCoords);
+    const deltaX = segmentLength * delta.x;
+    const deltaY = segmentLength * delta.y;
+    const deltaZ = segmentLength * delta.z;
 
-    for (let i = 0; i < segmentCount + 1; i++) {
+    console.log(deltaX, deltaY, deltaZ);
+
+    for (let i = 0; i < styles.segmentCount + 1; i++) {
         segmentPoints.push(
-            new Vector2(
-                origin.x + i * deltaX + random(-perturbance, perturbance),
-                origin.y + i * deltaY + random(-perturbance, perturbance)));
+            new Vector3(
+                origin.x + i * deltaX + random(-styles.perturbance, styles.perturbance),
+                origin.y + i * deltaY + random(-styles.perturbance, styles.perturbance),
+                origin.z + i * deltaZ + random(-styles.perturbance, styles.perturbance)));
     }
 
-    const spline = new SplineCurve(segmentPoints);
+    // const spline = new SplineCurve(segmentPoints);
+    const spline = new CatmullRomCurve3(segmentPoints);
     const splinePoints = spline.getPoints(segmentPoints.length);
     const geometry = new BufferGeometry().setFromPoints(splinePoints);
 
-    if (Array.isArray(color)) {
+    if (Array.isArray(styles.color)) {
         const vertCnt = geometry.getAttribute('position').count;
-        const colors = createColorGradientBufferAttribute(color[0], color[1], vertCnt);
+        const colors = createColorGradientBufferAttribute(styles.color[0], styles.color[1], vertCnt);
         geometry.addAttribute('color', colors);
     }
 
-    const mat = material ?
-        material :
-        new LineBasicMaterial( {linewidth: width} );
+    const mat = styles.material ?
+        styles.material :
+        new LineBasicMaterial({ linewidth: styles.width });
 
-    if (!Array.isArray(color)) {
-        mat.color = color;
+    if (!Array.isArray(styles.color)) {
+        mat.color = styles.color;
     } else {
         mat.vertexColors = VertexColors;
     }
@@ -201,28 +283,85 @@ export function createLine(origin: Vector3, angle: number, length: number, width
 }
 
 
-// todo: revise color gradient logic such that start & end color are the same
-export function createCircle(origin: Vector3, radius: number, lineWidth = 1,
-    color: Color | [Color, Color] = randomColor(), perturbance = 0.0,
-    segmentCount = 360, startAngle = 0,
-    material?: LineBasicMaterial | LineDashedMaterial): Line {
+/** 
+ *  CircleStyle properties
+ */
+export type CircleStyle = LineStyle & { 
+    
+    /** The angle (radians) to start the circle. Most useful animation of the circle line */
+    startAngle?: number 
+};
+
+
+/**
+ * Creates a wavy 2D colored three.js circle. 
+ * 
+ * @remarks
+ * This method creates a wavy three.js Circle. The perturbance and segmentCount 
+ * determine the wavyiness of the resulting line. 
+ * 
+ * How it works: the segmentCount specifies how many equal length segments to divide
+ * the line length into. Then each segment vertex is offset by a random value between
+ * 0 and the peturbance parameter. Then a cubic spline is fit through the segment
+ * vertices. If the color parameter is a [Color,Color] then a gradient of colors starting
+ * with the 1st element and ending with the 2nd element is evenly distributed across each 
+ * internal line segment. The resulting three.js Line is created using a geometry based
+ * on the line segments vertices and a line-material.  
+ * 
+ * @param origin - center point of the circle
+ * @param radius - radius of the circle to create, must be > 0.0
+ * @param theta - angle (radians) of line in x-y plane extending from the origin, 
+ *                measured counter-clockwise from the x-positive axis
+ * @param circleStyle - {width, color, segmentCount > 2, startAngle, material}
+ *
+ * @returns A new three.js Line with circle contour
+ *
+ * TODO: revise color gradient logic such that start & end color are the same
+ *
+ * @example
+ * createCircle2D(new Vector(), 10.0)
+ * 
+ * createCircle2D(
+ *     new Vector(10,30,-5),
+ *     50,
+ *     { 
+ *      width: 3,
+ *      color: [new Color(1,0,0),new Color(0,1,0]),
+ *      perturbance: 0.5,
+ *      segmentCount: 25,
+ *      startAngle: Math.PI/4.0,
+ *      material: new LineDashedMaterial({
+ *          dashSize: 2,
+ *          gapSize: 2}) 
+ *     })
+ */
+export function createCircle2D(origin: Vector3, radius: number,
+    circleStyle: Partial<CircleStyle> = {}): Line {
+
+    const styles = Object.assign({
+        width: 1.0,
+        color: randomColor(),
+        perturbance: 0.0,
+        segmentCount: 10,
+        startAngle: 0.0
+    }, circleStyle);
 
     // generate points
-    const segmentRads = 2 * Math.PI / segmentCount;
+    const segmentRads = 2 * Math.PI / styles.segmentCount;
     const segmentPoints = new Array<Vector3>();
 
     if (flipCoin()) {
-        for (let i = 0; i < segmentCount; i++) {
-            const radiusPrime = radius + random(-perturbance, perturbance);
-            const x = origin.x + radiusPrime * Math.cos(i * segmentRads + startAngle);
-            const y = origin.y + radiusPrime * Math.sin(i * segmentRads + startAngle);
+        for (let i = 0; i < styles.segmentCount; i++) {
+            const radiusPrime = radius + random(-styles.perturbance, styles.perturbance);
+            const x = origin.x + radiusPrime * Math.cos(i * segmentRads + styles.startAngle);
+            const y = origin.y + radiusPrime * Math.sin(i * segmentRads + styles.startAngle);
             segmentPoints.push(new Vector3(x, y, origin.z));
         }
     } else {
-        for (let i = segmentCount - 1; i >= 0; i--) {
-            const radiusPrime = radius + random(-perturbance, perturbance);
-            const x = origin.x + radiusPrime * Math.cos(i * segmentRads + startAngle);
-            const y = origin.y + radiusPrime * Math.sin(i * segmentRads + startAngle);
+        for (let i = styles.segmentCount - 1; i >= 0; i--) {
+            const radiusPrime = radius + random(-styles.perturbance, styles.perturbance);
+            const x = origin.x + radiusPrime * Math.cos(i * segmentRads + styles.startAngle);
+            const y = origin.y + radiusPrime * Math.sin(i * segmentRads + styles.startAngle);
             segmentPoints.push(new Vector3(x, y, origin.z));
         }
     }
@@ -232,16 +371,16 @@ export function createCircle(origin: Vector3, radius: number, lineWidth = 1,
     const splinePoints = stemCurve.getPoints(360);
 
     const geometry = new BufferGeometry().setFromPoints(splinePoints);
-    if (Array.isArray(color)) {
+    if (Array.isArray(styles.color)) {
         const vertCnt = geometry.getAttribute('position').count;
-        const colors = createColorGradientBufferAttribute(color[0], color[1], vertCnt);
+        const colors = createColorGradientBufferAttribute(styles.color[0], styles.color[1], vertCnt);
         geometry.addAttribute('color', colors);
     }
 
-    const mat = material ? material : new LineBasicMaterial({linewidth: lineWidth});
+    const mat = styles.material ? styles.material : new LineBasicMaterial({ linewidth: styles.width });
 
-    if (!Array.isArray(color)) {
-        mat.color = color;
+    if (!Array.isArray(styles.color)) {
+        mat.color = styles.color;
     } else {
         mat.vertexColors = VertexColors;
     }

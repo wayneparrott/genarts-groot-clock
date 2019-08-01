@@ -1,5 +1,5 @@
-import { ThreeComponent, Vector3, Color, LineDashedMaterial, VertexColors, LineBasicMaterial } from "three-component-ts";
-import { createLine, randomColor, random, createCircle } from "./util";
+import { ThreeComponent, Vector3, Color, LineDashedMaterial, VertexColors, LineBasicMaterial, OrbitControls, AxesHelper } from "three-component-ts";
+import { createLine2D, randomColor, random, createCircle2D } from "./util";
 import { TimelineMax, TweenMax, Expo } from "gsap";
 
 
@@ -27,59 +27,78 @@ export class CrookedLinesExample extends ThreeComponent {
 
         this.camera.position.setZ(30);
 
-        const line1 = createLine(
+        const line1 = createLine2D(
             new Vector3(-19, 8, 0), //origin
-            0, // angle
-            12 //length
+            12, //length
+            0 // theta
         );
         this.scene.add(line1);
 
-        const line2 = createLine(
+        const line2 = createLine2D(
             new Vector3(-6, 8, 0), //origin
-            0,   // angle
             12,  //length
-            1,   // linewidth
-            new Color('black'), // color
-            random(0, 0.4),     // perturbance
-            10  // number of segments
+            0,   // theta
+            {
+                width: 1,
+                color: new Color('black'),
+                perturbance: random(0, 0.4),
+                segmentCount: 10
+            }
         );
         this.scene.add(line2);
 
-        const line3 = createLine(
+        const line3 = createLine2D(
             new Vector3(7, 8, 0), //origin
-            0,   // angle
             12,  //length
-            3,   // linewidth
-            [new Color('red'), new Color('darkgreen')], // color
-            random(0.1, 0.5),                             // perturbance
-            30   // number of segments
+            0,   // theta
+            {
+                width: 3,
+                color: [new Color('red'), new Color('darkgreen')],
+                perturbance: random(0.1, 0.5),
+                segmentCount: 30
+            }
         );
         this.scene.add(line3);
 
-        const circle1 = createCircle(
-            new Vector3(-13, 0, 0),
-            6
-        );
+        const circle1 = createCircle2D(new Vector3(-13, 0, 0), 6);
+        circle1.rotateX(-0.2);
         this.scene.add(circle1);
 
-        const circle2 = createCircle(
-            new Vector3(0, 0, 0),
-            6, 1,
-            new Color('black'),
-            0.25,
-            15
-        );
+        const circle2 = createCircle2D(
+            new Vector3(0, 0, 0), 6,
+            {
+                width: 1,
+                color: new Color('black'),
+                perturbance: 0.25,
+                segmentCount: 15
+            });
         this.scene.add(circle2);
 
-        const circle3 = createCircle(
-            new Vector3(13, 0, 0),
-            6, 3,
-            new Color('red'),
-            0.5,
-            30
-        );
+        const circle3 = createCircle2D(
+            new Vector3(13, 0, 0), 6,
+            {
+                width: 3,
+                color: new Color('orange'),
+                perturbance: 0.5,
+                segmentCount: 30
+            });
+        circle3.rotateX(0.2);
         this.scene.add(circle3);
 
+        this.scene.add(new AxesHelper(20));
+    }
+
+    protected createOrbitControls() {
+        super.createOrbitControls();
+
+        this.controls.minDistance = 10;
+        this.controls.maxDistance = 1500;
+        this.controls.maxPolarAngle = Math.PI;
+    }
+
+
+    animate() {
+        this.controls.update();
     }
 
 }
