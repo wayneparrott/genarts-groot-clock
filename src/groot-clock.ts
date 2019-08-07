@@ -3,7 +3,7 @@ import {
     LineDashedMaterial, VertexColors, OrbitControls,
     TextureLoader, SpriteMaterial, Sprite, Color, REVISION
 } from "three-component-ts";
-import { random, randomColor, createCircle2D, createLine2D } from "./util";
+import { random, randomColor, ThreeUtils } from "./util";
 import { TweenMax } from "gsap/TweenMax";
 import { Expo, TimelineMax } from "gsap";
 
@@ -91,7 +91,7 @@ export class GrootClock extends ThreeComponent {
 
         // draw clock face
         for (let i = 0; i < CIRCLE_LINES; i++) {
-            const circle = createCircle2D(
+            const circle = ThreeUtils.createCircle2D(
                 new Vector3(),
                 random(FACE_RADIUS, FACE_RADIUS + 0.75),
                 {
@@ -113,7 +113,7 @@ export class GrootClock extends ThreeComponent {
 
         // draw hour hand
         for (let i = 0; i < HOUR_HAND_LINES; i++) {
-            const line = createLine2D(
+            const line = ThreeUtils.createLine2D(
                 new Vector3(),
                 random(HOUR_HAND_LEN - 1, HOUR_HAND_LEN),
                 Math.PI / 2,
@@ -133,7 +133,7 @@ export class GrootClock extends ThreeComponent {
 
         // draw minute hand
         for (let i = 0; i < MIN_HAND_LINES; i++) {
-            const line = createLine2D(
+            const line = ThreeUtils.createLine2D(
                 new Vector3(),
                 random(MINUTE_HAND_LEN - 1, MINUTE_HAND_LEN),
                 Math.PI / 2,
@@ -153,7 +153,7 @@ export class GrootClock extends ThreeComponent {
 
         // draw secondHand
         for (let i = 0; i < SEC_HAND_LINES; i++) {
-            const line = createLine2D(
+            const line = ThreeUtils.createLine2D(
                 new Vector3(0, 0, 0),
                 SECOND_HAND_LEN,
                 Math.PI / 2,
@@ -173,7 +173,7 @@ export class GrootClock extends ThreeComponent {
         // add center pt
         const centerPt = new Object3D();
         for (let i = 0; i < CENTER_PT_LINES; i++) {
-            const circle = createCircle2D(
+            const circle = ThreeUtils.createCircle2D(
                 new Vector3(),
                 CENTER_PT_LEN,
                 {
@@ -291,17 +291,11 @@ export class GrootClock extends ThreeComponent {
 
     }
 
-    protected createOrbitControls() {
-        super.createOrbitControls();
-        // this.controls = new OrbitControls(this.camera, this.renderer.domElement);
-        // this.controls.enableDamping = true; // an animation loop is required when either damping or auto-rotation are enabled
-        // this.controls.dampingFactor = 0.25;
-        // this.controls.screenSpacePanning = false;
+    protected createControls() {
+        super.createControls();
+        
         this.controls.minDistance = 10;
         this.controls.maxDistance = 1500;
-        // this.controls.maxPolarAngle = Math.PI / 2;
-
-        //this.controls.update();
     }
 
     animate() {

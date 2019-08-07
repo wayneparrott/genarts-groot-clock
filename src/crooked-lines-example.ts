@@ -1,5 +1,5 @@
 import { ThreeComponent, Vector3, Color, LineDashedMaterial, VertexColors, LineBasicMaterial, OrbitControls, AxesHelper } from "three-component-ts";
-import { createLine2D, randomColor, random, createCircle2D } from "./util";
+import { randomColor, random, ThreeUtils } from "./util";
 import { TimelineMax, TweenMax, Expo } from "gsap";
 
 
@@ -27,14 +27,14 @@ export class CrookedLinesExample extends ThreeComponent {
 
         this.camera.position.setZ(30);
 
-        const line1 = createLine2D(
+        const line1 = ThreeUtils.createLine2D(
             new Vector3(-19, 8, 0), //origin
             12, //length
             0 // theta
         );
         this.scene.add(line1);
 
-        const line2 = createLine2D(
+        const line2 = ThreeUtils.createLine2D(
             new Vector3(-6, 8, 0), //origin
             12,  //length
             0,   // theta
@@ -47,7 +47,7 @@ export class CrookedLinesExample extends ThreeComponent {
         );
         this.scene.add(line2);
 
-        const line3 = createLine2D(
+        const line3 = ThreeUtils.createLine2D(
             new Vector3(7, 8, 0), //origin
             12,  //length
             0,   // theta
@@ -60,11 +60,11 @@ export class CrookedLinesExample extends ThreeComponent {
         );
         this.scene.add(line3);
 
-        const circle1 = createCircle2D(new Vector3(-13, 0, 0), 6);
+        const circle1 = ThreeUtils.createCircle2D(new Vector3(-13, 0, 0), 6);
         circle1.rotateX(-0.2);
         this.scene.add(circle1);
 
-        const circle2 = createCircle2D(
+        const circle2 = ThreeUtils.createCircle2D(
             new Vector3(0, 0, 0), 6,
             {
                 width: 1,
@@ -74,7 +74,7 @@ export class CrookedLinesExample extends ThreeComponent {
             });
         this.scene.add(circle2);
 
-        const circle3 = createCircle2D(
+        const circle3 = ThreeUtils.createCircle2D(
             new Vector3(13, 0, 0), 6,
             {
                 width: 3,
