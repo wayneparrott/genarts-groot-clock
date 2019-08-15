@@ -4,7 +4,7 @@
   "description": "Groot Clock - a computer art project",
   "main": "index.js",
   "scripts": {
-    "start": "webpack-dev-server --inline ",
+    "start": "webpack-dev-server --inline",
     "build": "webpack --mode production"
   },
   "repository": {
