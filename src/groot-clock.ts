@@ -3,7 +3,7 @@ import {
     LineDashedMaterial, VertexColors, OrbitControls,
     TextureLoader, SpriteMaterial, Sprite, Color, REVISION
 } from "three-component-ts";
-import { random, randomColor, ThreeUtils } from "./util";
+import { MathUtils, ThreeUtils } from "./util";
 import { TweenMax } from "gsap/TweenMax";
 import { Expo, TimelineMax } from "gsap";
 
@@ -59,7 +59,7 @@ export class GrootClock extends ThreeComponent {
             color: 0xffffff,
             transparent: true,
             //depthWrite: false
-        });
+        }); 
 
 
     constructor() {
@@ -91,23 +91,23 @@ export class GrootClock extends ThreeComponent {
 
         // draw clock face
         for (let i = 0; i < CIRCLE_LINES; i++) {
-            const circle = ThreeUtils.createCircle2D(
+            const circle = ThreeUtils.createCircleLine2D(
                 new Vector3(),
-                random(FACE_RADIUS, FACE_RADIUS + 0.75),
+                MathUtils.random(FACE_RADIUS, FACE_RADIUS + 0.75),
                 {
                     width: LINE_WIDTH,
-                    color: [randomColor(), randomColor()],
-                    perturbance: random(0, 1.5),
+                    color: [MathUtils.randomColor(), MathUtils.randomColor()],
+                    perturbance: MathUtils.random(0, 1.5),
                     segmentCount: 25,
-                    startAngle: random(0, TWO_PI),
+                    startAngle: MathUtils.random(0, TWO_PI),
                     material: material.clone()
                 }
             );
             //circle.position.z = random(0, 5);
-            circle.rotateX(random(-0.2,0.2));
-            circle.rotateY(random(-0.2,0.2));
+            circle.rotateX(MathUtils.random(-0.2,0.2));
+            circle.rotateY(MathUtils.random(-0.2,0.2));
             this.face.add(circle);
-            this.timeline.to(circle.material, random(2, 6), { dashSize: CIRCUMFERENCE }, random(3, 15));
+            this.timeline.to(circle.material, MathUtils.random(2, 6), { dashSize: CIRCUMFERENCE }, MathUtils.random(3, 15));
         }
         this.scene.add(this.face);
 
@@ -115,18 +115,18 @@ export class GrootClock extends ThreeComponent {
         for (let i = 0; i < HOUR_HAND_LINES; i++) {
             const line = ThreeUtils.createLine2D(
                 new Vector3(),
-                random(HOUR_HAND_LEN - 1, HOUR_HAND_LEN),
+                MathUtils.random(HOUR_HAND_LEN - 1, HOUR_HAND_LEN),
                 Math.PI / 2,
                 {
                     width: LINE_WIDTH,
-                    color: [randomColor(), randomColor()],
-                    perturbance: random(0, 0.7),
+                    color: [MathUtils.randomColor(), MathUtils.randomColor()],
+                    perturbance: MathUtils.random(0, 0.7),
                     segmentCount: 10,
                     material: material.clone()
                 }
             );
             this.hourHand.add(line);
-            this.timeline.to(line.material, 6, { dashSize: HOUR_HAND_LEN }, random(3, 15));
+            this.timeline.to(line.material, 6, { dashSize: HOUR_HAND_LEN }, MathUtils.random(3, 15));
         }
         this.hourHand.position.z = -INSET;
         this.scene.add(this.hourHand);
@@ -135,17 +135,17 @@ export class GrootClock extends ThreeComponent {
         for (let i = 0; i < MIN_HAND_LINES; i++) {
             const line = ThreeUtils.createLine2D(
                 new Vector3(),
-                random(MINUTE_HAND_LEN - 1, MINUTE_HAND_LEN),
+                MathUtils.random(MINUTE_HAND_LEN - 1, MINUTE_HAND_LEN),
                 Math.PI / 2,
                 {
                     width: LINE_WIDTH,
-                    color: [randomColor(), randomColor()],
-                    perturbance: random(0, 0.5),
+                    color: [MathUtils.randomColor(), MathUtils.randomColor()],
+                    perturbance: MathUtils.random(0, 0.5),
                     segmentCount: 10,
                     material: material.clone()
                 });
             this.minuteHand.add(line);
-            this.timeline.to(line.material, 6, { dashSize: MINUTE_HAND_LEN }, random(3, 15));
+            this.timeline.to(line.material, 6, { dashSize: MINUTE_HAND_LEN }, MathUtils.random(3, 15));
         }
         this.minuteHand.position.z = -INSET;
         this.scene.add(this.minuteHand);
@@ -159,13 +159,13 @@ export class GrootClock extends ThreeComponent {
                 Math.PI / 2,
                 {
                     width: LINE_WIDTH,
-                    color: [randomColor(), randomColor()],
-                    perturbance: random(0, 0.45),
+                    color: [MathUtils.randomColor(), MathUtils.randomColor()],
+                    perturbance: MathUtils.random(0, 0.45),
                     segmentCount: 10,
                     material: material.clone()
                 });
             this.secondHand.add(line);
-            this.timeline.to(line.material, 6, { dashSize: SECOND_HAND_LEN }, random(3, 15));
+            this.timeline.to(line.material, 6, { dashSize: SECOND_HAND_LEN }, MathUtils.random(3, 15));
         }
         this.secondHand.position.z = -INSET;
         this.scene.add(this.secondHand);
@@ -173,13 +173,13 @@ export class GrootClock extends ThreeComponent {
         // add center pt
         const centerPt = new Object3D();
         for (let i = 0; i < CENTER_PT_LINES; i++) {
-            const circle = ThreeUtils.createCircle2D(
+            const circle = ThreeUtils.createCircleLine2D(
                 new Vector3(),
                 CENTER_PT_LEN,
                 {
                     width: LINE_WIDTH,
                     color: [new Color('yellow'), new Color('darkgreen')],
-                    perturbance: random(0, 1.0),
+                    perturbance: MathUtils.random(0, 1.0),
                     segmentCount: 25
                 });
             centerPt.add(circle);
@@ -191,87 +191,87 @@ export class GrootClock extends ThreeComponent {
         if (INCLUDE_LEAFS) {
             // create leafs
             for (let i = 0; i < LEAFS; i++) {
-                const angle = random(0, TWO_PI);
-                const radius = random(FACE_RADIUS - 0.5, FACE_RADIUS + 1.1);
+                const angle = MathUtils.random(0, TWO_PI);
+                const radius = MathUtils.random(FACE_RADIUS - 0.5, FACE_RADIUS + 1.1);
                 const rotation =
                     (radius < FACE_RADIUS ? angle + Math.PI : angle) +
-                    random(-Math.PI / 3, Math.PI / 3);
+                    MathUtils.random(-Math.PI / 3, Math.PI / 3);
                 const leaf = this.createLeaf(
                     radius * Math.cos(angle),
                     radius * Math.sin(angle),
                     //randomColor());
-                    new Color(1.0, 0.6 + random(0, 0.4), 0));
-                const scale = random(0.5, 1.0);
+                    new Color(1.0, 0.6 + MathUtils.random(0, 0.4), 0));
+                const scale = MathUtils.random(0.5, 1.0);
                 leaf.scale.set(scale, scale, 1);
                 leaf.material.rotation = rotation;
-                leaf.position.z = random(-2.5,2.5);
+                leaf.position.z = MathUtils.random(-2.5,2.5);
                 leaf.material.opacity = 0;
 
                 this.face.add(leaf);
                 this.timeline.to(
                     leaf.material,
-                    random(2, 6),
-                    { opacity: random(0.1, 0.9) },
-                    random(6.5, 20));
+                    MathUtils.random(2, 6),
+                    { opacity: MathUtils.random(0.1, 0.9) },
+                    MathUtils.random(6.5, 20));
             }
 
             //second hand leafs
             for (let i = 0; i < SECOND_HAND_LEAFS; i++) {
-                const x = random(-0.15, 0.15);
+                const x = MathUtils.random(-0.15, 0.15);
                 const leaf = this.createLeaf(
-                    x, random(2, SECOND_HAND_LEN - 1),
-                    new Color(0.5, 0.6 + random(0, 0.4), 0.5));
-                const scale = random(0.5, 0.75);
+                    x, MathUtils.random(2, SECOND_HAND_LEN - 1),
+                    new Color(0.5, 0.6 + MathUtils.random(0, 0.4), 0.5));
+                const scale = MathUtils.random(0.5, 0.75);
                 leaf.scale.set(scale, scale, 1);
                 leaf.material.rotation =
-                    Math.PI + (x < 0 ? random(0, 0.5) : random(-0.5, 0));
+                    Math.PI + (x < 0 ? MathUtils.random(0, 0.5) : MathUtils.random(-0.5, 0));
                 //leaf.position.z = -INSET;
                 leaf.material.opacity = 0;
 
                 this.secondHand.add(leaf);
                 this.timeline.to(
                     leaf.material,
-                    random(2, 5),
-                    { opacity: random(0.2, 0.9) },
-                    random(12, 20));
+                    MathUtils.random(2, 5),
+                    { opacity: MathUtils.random(0.2, 0.9) },
+                    MathUtils.random(12, 20));
             }
 
             //minute hand leafs
             for (let i = 0; i < MINUTE_HAND_LEAFS; i++) {
                 const leaf = this.createLeaf(
-                    random(-0.25, 0.25), random(2, MINUTE_HAND_LEN),
-                    new Color(0.5, 0.6 + random(0, 0.4), 0.5));
-                const scale = random(0.5, 0.75);
+                    MathUtils.random(-0.25, 0.25), MathUtils.random(2, MINUTE_HAND_LEN),
+                    new Color(0.5, 0.6 + MathUtils.random(0, 0.4), 0.5));
+                const scale = MathUtils.random(0.5, 0.75);
                 leaf.scale.set(scale, scale, 1);
-                leaf.material.rotation = random(0, TWO_PI);
+                leaf.material.rotation = MathUtils.random(0, TWO_PI);
                 //leaf.position.z = -INSET; //random(0, 5);
                 leaf.material.opacity = 0;
 
                 this.minuteHand.add(leaf);
                 this.timeline.to(
                     leaf.material,
-                    random(2, 5),
-                    { opacity: random(0.2, 0.9) },
-                    random(12, 20));
+                    MathUtils.random(2, 5),
+                    { opacity: MathUtils.random(0.2, 0.9) },
+                    MathUtils.random(12, 20));
             }
 
             //hour hour leafs
             for (let i = 0; i < HOUR_HAND_LEAFS; i++) {
                 const leaf = this.createLeaf(
-                    random(-0.25, 0.25), random(2, HOUR_HAND_LEN),
-                    new Color(0, 0.75, random(0.5, 1)));
-                const scale = random(0.5, 0.75);
+                    MathUtils.random(-0.25, 0.25), MathUtils.random(2, HOUR_HAND_LEN),
+                    new Color(0, 0.75, MathUtils.random(0.5, 1)));
+                const scale = MathUtils.random(0.5, 0.75);
                 leaf.scale.set(scale, scale, 1);
-                leaf.material.rotation = random(0, TWO_PI);
+                leaf.material.rotation = MathUtils.random(0, TWO_PI);
                 //leaf.position.z = -INSET; //random(0, 5);
                 leaf.material.opacity = 0;
 
                 this.hourHand.add(leaf);
                 this.timeline.to(
                     leaf.material,
-                    random(2, 5),
-                    { opacity: random(0.2, 0.9) },
-                    random(12, 20));
+                    MathUtils.random(2, 5),
+                    { opacity: MathUtils.random(0.2, 0.9) },
+                    MathUtils.random(12, 20));
             }
         }
     }

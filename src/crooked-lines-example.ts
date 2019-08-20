@@ -1,5 +1,5 @@
 import { ThreeComponent, Vector3, Color, LineDashedMaterial, VertexColors, LineBasicMaterial, OrbitControls, AxesHelper } from "three-component-ts";
-import { randomColor, random, ThreeUtils } from "./util";
+import { MathUtils, ThreeUtils } from "./util";
 import { TimelineMax, TweenMax, Expo } from "gsap";
 
 
@@ -30,7 +30,8 @@ export class CrookedLinesExample extends ThreeComponent {
         const line1 = ThreeUtils.createLine2D(
             new Vector3(-19, 8, 0), //origin
             12, //length
-            0 // theta
+            0 ,// theta
+            {color: new Color('blue')}
         );
         this.scene.add(line1);
 
@@ -40,8 +41,8 @@ export class CrookedLinesExample extends ThreeComponent {
             0,   // theta
             {
                 width: 1,
-                color: new Color('black'),
-                perturbance: random(0, 0.4),
+                color: [new Color('red'), new Color('blue')],
+                perturbance: MathUtils.random(0, 0.4),
                 segmentCount: 10
             }
         );
@@ -54,38 +55,37 @@ export class CrookedLinesExample extends ThreeComponent {
             {
                 width: 3,
                 color: [new Color('red'), new Color('darkgreen')],
-                perturbance: random(0.1, 0.5),
+                perturbance: MathUtils.random(0.1, 0.5),
                 segmentCount: 30
             }
         );
         this.scene.add(line3);
 
-        const circle1 = ThreeUtils.createCircle2D(new Vector3(-13, 0, 0), 6);
-        circle1.rotateX(-0.2);
+        const circle1 = ThreeUtils.createCircleLine2D(new Vector3(-13, 0, 0), 6,  {color: new Color('blue')});
         this.scene.add(circle1);
 
-        const circle2 = ThreeUtils.createCircle2D(
+        const circle2 = ThreeUtils.createCircleLine2D(
             new Vector3(0, 0, 0), 6,
             {
                 width: 1,
-                color: new Color('black'),
+                color: [new Color('red'), new Color('blue')],
                 perturbance: 0.25,
                 segmentCount: 15
             });
         this.scene.add(circle2);
 
-        const circle3 = ThreeUtils.createCircle2D(
+        const circle3 = ThreeUtils.createCircleLine2D(
             new Vector3(13, 0, 0), 6,
             {
                 width: 3,
-                color: new Color('orange'),
+                color: [new Color('red'), new Color("green")],
                 perturbance: 0.5,
                 segmentCount: 30
             });
         circle3.rotateX(0.2);
         this.scene.add(circle3);
 
-        this.scene.add(new AxesHelper(20));
+        //this.scene.add(new AxesHelper(20));
     }
 
     protected createOrbitControls() {

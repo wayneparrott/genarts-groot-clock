@@ -29,7 +29,7 @@ export class Circles extends ThreeComponent {
 
         this.camera.position.setZ(30);
 
-        this.circle1 = ThreeUtils.createCircle2D(
+        this.circle1 = ThreeUtils.createCircleLine2D(
             new Vector3(0, 0, 0), 6,
             {
                 width: 1,
@@ -39,7 +39,7 @@ export class Circles extends ThreeComponent {
             });
         this.scene.add(this.circle1);
 
-        this.circle2 = ThreeUtils.createCircle2D(
+        this.circle2 = ThreeUtils.createCircleLine2D(
             new Vector3(0, 0, 0), 6,
             {
                 width: 1.5,
