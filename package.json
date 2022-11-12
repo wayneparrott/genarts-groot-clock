@@ -36,7 +36,7 @@
     "style-loader": "latest",
     "typescript": "latest",
     "webpack": "latest",
-    "webpack-cli": "^3.0.8",
+    "webpack-cli": "^3.3.12",
     "webpack-dev-server": "latest"
   },
   "dependencies": {
